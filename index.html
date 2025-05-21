@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RxLedger Dashboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0fff4;
+      color: #065f46;
+    }
+    header {
+      background: #10b981;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: #d1fae5;
+    }
+    nav button {
+      padding: 1rem;
+      border: none;
+      background: none;
+      font-weight: bold;
+      cursor: pointer;
+      color: #065f46;
+    }
+    nav button.active {
+      border-bottom: 3px solid #10b981;
+    }
+    .tab {
+      display: none;
+      padding: 2rem;
+    }
+    .tab.active {
+      display: block;
+    }
+    .products, .deliveries, .inventory {
+      display: grid;
+      gap: 1rem;
+    }
+    .card {
+      border: 1px solid #a7f3d0;
+      background: #ecfdf5;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    .card h3 {
+      margin-top: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #d1fae5;
+      padding: 0.5rem;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>RxLedger Portal</h1>
+  <p>B2B Medicine Ordering Platform</p>
+</header>
+
+<nav>
+  <button class="tablink active" onclick="showTab('retailer')">Retailer</button>
+  <button class="tablink" onclick="showTab('wholesaler')">Wholesaler</button>
+  <button class="tablink" onclick="showTab('delivery')">Delivery Rep</button>
+</nav>
+
+<section id="retailer" class="tab active">
+  <h2>Retailer Dashboard</h2>
+  <div class="products">
+    <div class="card">
+      <h3>Paracetamol 500mg</h3>
+      <p>₹20 per strip</p>
+      <button onclick="addToBill('Paracetamol 500mg', 20)">Add to Bill</button>
+    </div>
+    <div class="card">
+      <h3>Amoxicillin 250mg</h3>
+      <p>₹35 per strip</p>
+      <button onclick="addToBill('Amoxicillin 250mg', 35)">Add to Bill</button>
+    </div>
+    <div class="card">
+      <h3>Ibuprofen 400mg</h3>
+      <p>₹30 per strip</p>
+      <button onclick="addToBill('Ibuprofen 400mg', 30)">Add to Bill</button>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 2rem;">Current Bill:</h3>
+  <ul id="billList"></ul>
+  <button onclick="downloadBill()">Generate Bill (Excel)</button>
+</section>
+    
+
+<section id="wholesaler" class="tab">
+  <h2>Wholesaler Inventory</h2>
+  <button style="margin-bottom: 1rem;">Upload Excel</button>
+  <div class="inventory">
+    <table>
+      <thead>
+        <tr>
+          <th>Medicine</th>
+          <th>Stock</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ibuprofen</td>
+          <td>120</td>
+          <td>₹30</td>
+        </tr>
+        <tr>
+          <td>Cetirizine</td>
+          <td>80</td>
+          <td>₹25</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="delivery" class="tab">
+  <h2>Delivery Representative</h2>
+  <div class="deliveries">
+    <div class="card">
+      <h3>Order #1023</h3>
+      <p>Deliver to: A1 Med Store</p>
+      <label>Status:
+        <select>
+          <option>Pending</option>
+          <option>Delivered</option>
+          <option>Returned</option>
+        </select>
+      </label>
+    </div>
+    <div class="card">
+      <h3>Order #1024</h3>
+      <p>Deliver to: HealthPlus</p>
+      <label>Status:
+        <select>
+          <option>Pending</option>
+          <option>Delivered</option>
+          <option>Returned</option>
+        </select>
+      </label>
+    </div>
+  </div>
+</section>
+
+<script>
+  function showTab(tabId) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tablink').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+  }const bill = [];
+
+  function addToBill(name, price) {
+    bill.push({ name, price });
+    const billList = document.getElementById("billList");
+    const item = document.createElement("li");
+    item.textContent = ${name} - ₹${price};
+    billList.appendChild(item);
+  }
+
+  function downloadBill() {
+    if (bill.length === 0) {
+      alert("No items in bill!");
+      return;
+    }
+
+    let csvContent = "Medicine,Price\n";
+    bill.forEach(item => {
+      csvContent += ${item.name},${item.price}\n;
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "RxLedger_Bill.csv");
+    link.click();
+  }
+</script>
+
+</body>
+</html>
